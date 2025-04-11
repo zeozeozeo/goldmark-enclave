@@ -17,7 +17,7 @@ type (
 
 func NewEnclave(c *core.Enclave) *core.Enclave {
 	c.Destination = c.Image.Destination
-	c.Title = c.Image.Title
+	c.Title = string(c.Image.Title)
 	return c
 }
 

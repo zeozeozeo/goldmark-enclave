@@ -36,7 +36,10 @@ type (
 
 	Enclave struct {
 		ast.Image
-		URL            *url.URL
+		Alt   string
+		Title string
+		URL   *url.URL
+
 		IframeDisabled bool
 		Provider       string
 		ObjectID       string

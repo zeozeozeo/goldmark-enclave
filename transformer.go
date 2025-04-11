@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/quailyquaily/goldmark-enclave/core"
+	"github.com/quailyquaily/goldmark-enclave/helper"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
@@ -15,9 +16,6 @@ import (
 type astTransformer struct {
 	cfg *core.Config
 }
-
-var imgLeftNode ast.Node
-var imgLeftParentNode ast.Node
 
 func (a *astTransformer) InsertFailedHint(n ast.Node, msg string) {
 	msgNode := ast.NewString([]byte(fmt.Sprintf("\n<!-- goldmark-enclave: %s -->\n", msg)))
@@ -32,10 +30,6 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 		}
 
 		if n.Kind() != ast.KindImage {
-			if n.Kind() == ast.KindParagraph {
-				imgLeftNode = n
-				imgLeftParentNode = n.Parent()
-			}
 			return ast.WalkContinue, nil
 		}
 
@@ -45,6 +39,11 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			a.InsertFailedHint(n, fmt.Sprintf("failed to parse url: %s, %s", img.Destination, err))
 			return ast.WalkContinue, nil
 		}
+
+		// [alt](url "title")
+		// read the title and alt from markdown
+		title := string(img.Title)
+		altText := helper.ExtractTextRecursivelyByReader(n, reader)
 
 		oid := ""
 		theme := "light"
@@ -128,7 +127,6 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			oid = string(img.Destination)
 
 		} else {
-			title := string(img.Title)
 			w := u.Query().Get("w")
 			if w == "" {
 				w = u.Query().Get("width")
@@ -143,6 +141,9 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				oid = string(img.Destination)
 				if title != "" {
 					params["title"] = string(img.Title)
+				}
+				if altText != "" {
+					params["alt"] = altText
 				}
 				if w != "" {
 					params["width"] = w
@@ -160,6 +161,8 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			ev := NewEnclave(
 				&core.Enclave{
 					Image:          *img,
+					Alt:            altText,
+					Title:          title,
 					URL:            u,
 					Provider:       provider,
 					ObjectID:       oid,
@@ -168,14 +171,18 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 					IframeDisabled: a.cfg.IframeDisabled,
 				})
 
-			// if the outter node is a paragraph node, replace the whole paragraph.
-			// because we can not put div in a p tag
-			// if imgLeftNode != nil && imgLeftNode.Kind() == ast.KindParagraph && imgLeftParentNode != nil {
-			// 	imgLeftParentNode.ReplaceChild(imgLeftParentNode, n, ev)
-			// 	imgLeftNode = nil
-			// 	imgLeftParentNode = nil
-			// } else {
-			n.Parent().ReplaceChild(n.Parent(), n, ev)
+			parent := n.Parent()
+			// fmt.Printf("parent: %v\n", parent.Kind())
+
+			// clear the content of the parent node
+			parent.RemoveChildren(parent)
+			// add the new enclave node to
+			parent.AppendChild(parent, ev)
+
+			// n.Parent().ReplaceChild(n.Parent(), n, ev)
+
+			// for child := parent.FirstChild(); child != nil; child = child.NextSibling() {
+			// 	fmt.Printf("child of parent: %+v\n", child)
 			// }
 		}
 

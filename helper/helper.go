@@ -45,6 +45,21 @@ func ExtractTextFromNode(node ast.Node, source []byte) string {
 	return string(text)
 }
 
+func ExtractTextRecursivelyByReader(node ast.Node, reader text.Reader) string {
+	var builder strings.Builder
+	ast.Walk(node, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+		if !entering {
+			return ast.WalkContinue, nil
+		}
+		// If we encounter a Text node, append its content.
+		if textNode, ok := n.(*ast.Text); ok {
+			builder.Write(reader.Value(textNode.Segment))
+		}
+		return ast.WalkContinue, nil
+	})
+	return builder.String()
+}
+
 func GetParagraphs(source []byte) []string {
 	parser := goldmark.DefaultParser()
 	reader := text.NewReader(source)

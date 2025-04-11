@@ -32,6 +32,12 @@ func (r *HTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 
 func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
+		// check the node and print the inner html and children
+		for child := node.FirstChild(); child != nil; child = child.NextSibling() {
+			if child.Kind() == ast.KindText {
+				node.RemoveChildren(node)
+			}
+		}
 		return ast.WalkContinue, nil
 	}
 
@@ -137,23 +143,22 @@ func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.N
 		w.Write([]byte(html))
 
 	case core.EnclaveProviderQuailImage:
-		alt := string(node.Text(source))
-		if alt == "" && len(enc.Title) != 0 {
+		var alt string
+		if enc.Alt == "" && len(enc.Title) != 0 {
 			alt = fmt.Sprintf("An image to describe %s", enc.Title)
 		}
 		if alt == "" {
 			alt = "An image to describe post"
 		}
-		enc.Params["alt"] = alt
-		html, err := object.GetQuailImageHtml(enc.URL, enc.Params)
+		html, err := object.GetQuailImageHtml(enc)
 		if err != nil || html == "" {
 			html = r.wrapEnclaveErrorHtml("quail-image", enc.ObjectID)
 		}
 		w.Write([]byte(html))
 
 	case core.EnclaveRegularImage:
-		alt := string(node.Text(source))
-		if alt == "" && len(enc.Title) != 0 {
+		var alt string
+		if enc.Alt == "" && len(enc.Title) != 0 {
 			alt = fmt.Sprintf("An image to describe %s", enc.Title)
 		}
 		if alt == "" {

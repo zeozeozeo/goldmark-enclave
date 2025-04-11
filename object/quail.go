@@ -3,7 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
-	"net/url"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -24,10 +24,10 @@ const quailWidgetTpl = `
 `
 
 const quailImageTpl = `
-<span class="quail-image-wrapper" style="width: {{.Width}}; height: {{.Height}}; margin: 1rem 0; display: block">
+<figure class="quail-image-wrapper" style="width: {{.Width}}; height: {{.Height}}; margin: 1rem 0; display: block">
 	<img src="{{.URL}}" alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}}" class="quail-image" />
-	<span class="quail-image-caption" style="display: block">{{.Title}}</span>
-</span>
+	<figcaption class="quail-image-caption" style="display: block">{{.Title}}</figcaption>
+</figure>
 `
 
 func GetQuailWidgetHtml(enc *core.Enclave) (string, error) {
@@ -80,7 +80,7 @@ func GetQuailWidgetHtml(enc *core.Enclave) (string, error) {
 	return ret, nil
 }
 
-func GetQuailImageHtml(url *url.URL, params map[string]string) (string, error) {
+func GetQuailImageHtml(enc *core.Enclave) (string, error) {
 	buf := bytes.Buffer{}
 
 	t, err := template.New("quail-image").Parse(quailImageTpl)
@@ -89,26 +89,28 @@ func GetQuailImageHtml(url *url.URL, params map[string]string) (string, error) {
 	}
 
 	w := "auto"
-	if width, ok := params["width"]; ok {
+	if width, ok := enc.Params["width"]; ok {
 		w = width
 	}
 
 	h := "auto"
-	if height, ok := params["height"]; ok {
+	if height, ok := enc.Params["height"]; ok {
 		h = height
 	}
-	title := ""
-	if t, ok := params["title"]; ok {
-		title = t
+
+	// if w and h are number, add px to the end
+	if wNum, err := strconv.Atoi(w); err == nil {
+		w = fmt.Sprintf("%dpx", wNum)
+	}
+	if hNum, err := strconv.Atoi(h); err == nil {
+		h = fmt.Sprintf("%dpx", hNum)
 	}
 
-	alt := ""
-	if t, ok := params["alt"]; ok {
-		alt = t
-	}
+	title := enc.Title
+	alt := enc.Alt
 
 	if err = t.Execute(&buf, map[string]string{
-		"URL":    url.String(),
+		"URL":    enc.URL.String(),
 		"Title":  title,
 		"Width":  w,
 		"Height": h,
