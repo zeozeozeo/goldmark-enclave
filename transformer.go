@@ -127,6 +127,10 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			oid = string(img.Destination)
 
 		} else {
+			// check the resize params
+			// form 1: ![](https://example.com/image.jpg?w=200&h=100)
+			// form 2: ![](https://example.com/image.jpg|200x100) or ![](https://example.com/image.jpg|200)
+			// form 3: ![alt|200x100](https://example.com/image.jpg) or ![alt|200](https://example.com/image.jpg)
 			w := u.Query().Get("w")
 			if w == "" {
 				w = u.Query().Get("width")
@@ -135,10 +139,35 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			if h == "" {
 				h = u.Query().Get("height")
 			}
+
+			destination := string(img.Destination)
+			reForm := regexp.MustCompile(`\|(\d+)(?:x(\d+))?`)
+			// check the form 2, the tail of img.Destination is like |200x100 or |200
+			if strings.Contains(destination, "|") {
+				matches := reForm.FindStringSubmatch(destination)
+				if len(matches) > 1 {
+					w = matches[1]
+					if len(matches) > 2 {
+						h = matches[2]
+					}
+				}
+				destination = strings.Split(destination, "|")[0]
+			}
+
+			if strings.Contains(altText, "|") {
+				matches := reForm.FindStringSubmatch(altText)
+				if len(matches) > 1 {
+					w = matches[1]
+					if len(matches) > 2 {
+						h = matches[2]
+					}
+				}
+			}
+
 			if len(title) != 0 || w != "" || h != "" {
 				// this is a normal image, but it has a title, so we add a caption
 				provider = core.EnclaveProviderQuailImage
-				oid = string(img.Destination)
+				oid = destination
 				if title != "" {
 					params["title"] = string(img.Title)
 				}
@@ -153,7 +182,11 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				}
 			} else {
 				provider = core.EnclaveRegularImage
-				oid = string(img.Destination)
+				oid = destination
+			}
+			u, err = url.Parse(destination)
+			if err != nil {
+				return ast.WalkContinue, nil
 			}
 		}
 
@@ -175,7 +208,7 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			// fmt.Printf("parent: %v\n", parent.Kind())
 
 			// clear the content of the parent node
-			parent.RemoveChildren(parent)
+			// parent.RemoveChildren(parent)
 			// add the new enclave node to
 			parent.AppendChild(parent, ev)
 
