@@ -91,6 +91,7 @@ Some objects support options:
   - e.g. `![](https://twitter.com/NASA/status/1704954156149084293?theme=dark)`
 - `width` / `w` and `height` / `h`: The width and height of images. Default: `auto`
   - e.g. `![](https://your-image.com/image.png?w=100px)`
+- Obsidian-style image syntax: `![alt text](https://example.com/image.png|200 "title")` or `![alt text|200x300](https://example.com/image.png "title")` 
 
 ## Other features
 
