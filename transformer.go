@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/quailyquaily/goldmark-enclave/core"
@@ -145,7 +146,13 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				// get the ad id from the url
 				matches := reAd.FindStringSubmatch(u.Path)
 				if len(matches) > 1 {
-					oid = matches[1]
+					adId := matches[1]
+					// the ad id must be a number
+					if _, err := strconv.Atoi(adId); err == nil {
+						oid = adId
+					} else {
+						return ast.WalkContinue, nil
+					}
 				}
 			}
 
