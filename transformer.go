@@ -108,6 +108,47 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				}
 			}
 
+		} else if u.Scheme == "quaily" {
+			// list: quaily://list/{list_slug}
+			// post: quaily://post/{list_slug}/{post_slug}
+			// ad: quaily://ad/{ad_id}
+			reList := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)$`)
+			rePost := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$`)
+			reAd := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)$`)
+
+			if u.Host == "list" || u.Host == "post" {
+				provider = core.EnclaveProviderQuailWidget
+				// find the list slug and post slug using regex
+				var listSlug, postSlug string
+				var destURL string
+
+				if reList.MatchString(u.Path) {
+					matches := reList.FindStringSubmatch(u.Path)
+					if len(matches) > 1 {
+						listSlug = matches[1]
+						destURL = fmt.Sprintf("https://quaily.com/%s", listSlug)
+					}
+				} else if rePost.MatchString(u.Path) {
+					matches := rePost.FindStringSubmatch(u.Path)
+					if len(matches) > 2 {
+						listSlug = matches[1]
+						postSlug = matches[2]
+						destURL = fmt.Sprintf("https://quaily.com/%s/p/%s", listSlug, postSlug)
+					}
+				}
+
+				oid = destURL
+				theme = u.Query().Get("theme")
+				params["layout"] = u.Query().Get("layout")
+			} else if u.Host == "ad" {
+				provider = core.EnclaveProviderQuailAd
+				// get the ad id from the url
+				matches := reAd.FindStringSubmatch(u.Path)
+				if len(matches) > 1 {
+					oid = matches[1]
+				}
+			}
+
 		} else if u.Host == "open.spotify.com" {
 			// https://open.spotify.com/track/5vdp5UmvTsnMEMESIF2Ym7?si=d4ee09bfd0e941c5
 			const re = `^track/([a-zA-Z0-9_-]+)$`

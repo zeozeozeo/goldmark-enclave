@@ -30,6 +30,12 @@ const quailImageTpl = `
 </figure>
 `
 
+const quailAdTpl = `
+<div class="quail-ad-wrapper" style="width: 100%; height: auto; margin: 1rem 0; display: block">
+	<div class="quail-ad" data-ad-id="{{.ObjectID}}" style="width: 100%; height: auto"></div>
+</div>
+`
+
 func GetQuailWidgetHtml(enc *core.Enclave) (string, error) {
 	if enc.Theme == "dark" {
 		enc.Theme = "dark"
@@ -115,6 +121,23 @@ func GetQuailImageHtml(enc *core.Enclave) (string, error) {
 		"Width":  w,
 		"Height": h,
 		"Alt":    alt,
+	}); err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
+func GetQuailAdHtml(enc *core.Enclave) (string, error) {
+	buf := bytes.Buffer{}
+
+	t, err := template.New("quail-ad").Parse(quailAdTpl)
+	if err != nil {
+		return "", err
+	}
+
+	if err = t.Execute(&buf, map[string]string{
+		"ObjectID": enc.ObjectID,
 	}); err != nil {
 		return "", err
 	}

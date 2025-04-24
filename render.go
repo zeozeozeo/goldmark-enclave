@@ -45,19 +45,6 @@ func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.N
 	switch enc.Provider {
 	case core.EnclaveProviderYouTube:
 		{
-			// if enc.IframeDisabled {
-			// 	w.Write([]byte(`
-			// 	<div class="enclave-object-wrapper">
-			// 		<a href="https://www.youtube.com/watch?v=` + enc.ObjectID + `" target="_blank" rel="noopener noreferrer">
-			// 			<img src="https://img.youtube.com/vi/` + enc.ObjectID + `/maxresdefault.jpg" title="YouTube video player" />
-			// 		</a>
-			// 	</div>`))
-			// } else {
-			// 	w.Write([]byte(`
-			// 	<div class="enclave-object-wrapper">
-			// 		<iframe class="enclave-object youtube-enclave-object" width="100%" height="400" src="https://www.youtube.com/embed/` + enc.ObjectID + `" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-			// 	</div>`))
-			// }
 			html, err := object.GetYoutubeEmbedHtml(enc)
 			if err != nil || html == "" {
 				html = r.wrapEnclaveErrorHtml("youtube", enc.ObjectID)
@@ -119,6 +106,13 @@ func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.N
 		} else {
 			// html = fmt.Sprintf(`<div class="enclave-object-wrapper normal-wrapper"><div class="enclave-object quail-enclave-object normal-object no-border">%s</div></div>`, html)
 			html = r.wrapEnclaveHtml("quail", html, true, false)
+		}
+		w.Write([]byte(html))
+
+	case core.EnclaveProviderQuailAd:
+		html, err := object.GetQuailAdHtml(enc)
+		if err != nil || html == "" {
+			html = r.wrapEnclaveErrorHtml("quail-ad", enc.ObjectID)
 		}
 		w.Write([]byte(html))
 
