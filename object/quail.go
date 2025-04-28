@@ -32,7 +32,7 @@ const quailImageTpl = `
 
 const quailAdTpl = `
 <div class="quail-ad-wrapper" style="width: 100%; height: auto; margin: 1rem 0; display: block">
-	<div class="quail-ad" data-ad-id="{{.ObjectID}}" style="width: 100%; height: auto"></div>
+	<div class="quail-ad" data-ad-uuid="{{.ObjectID}}" style="width: 100%; height: auto"></div>
 </div>
 `
 

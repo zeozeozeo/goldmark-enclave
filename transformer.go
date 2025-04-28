@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/quailyquaily/goldmark-enclave/core"
 	"github.com/quailyquaily/goldmark-enclave/helper"
 	"github.com/yuin/goldmark/ast"
@@ -112,10 +112,10 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 		} else if u.Scheme == "quaily" {
 			// list: quaily://list/{list_slug}
 			// post: quaily://post/{list_slug}/{post_slug}
-			// ad: quaily://ad/{ad_id}
+			// ad: quaily://ad/{ad_uuid}
 			reList := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)$`)
 			rePost := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$`)
-			reAd := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)$`)
+			reAd := regexp.MustCompile(`^/([a-zA-Z0-9_-]{36})$`)
 
 			if u.Host == "list" || u.Host == "post" {
 				provider = core.EnclaveProviderQuailWidget
@@ -146,10 +146,10 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				// get the ad id from the url
 				matches := reAd.FindStringSubmatch(u.Path)
 				if len(matches) > 1 {
-					adId := matches[1]
-					// the ad id must be a number
-					if _, err := strconv.Atoi(adId); err == nil {
-						oid = adId
+					adUUID := matches[1]
+					// the ad id must be an UUID
+					if _, err := uuid.Parse(adUUID); err == nil {
+						oid = adUUID
 					} else {
 						return ast.WalkContinue, nil
 					}
