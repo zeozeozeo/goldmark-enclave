@@ -112,7 +112,7 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 		} else if u.Scheme == "quaily" {
 			// list: quaily://list/{list_slug}
 			// post: quaily://post/{list_slug}/{post_slug}
-			// ad: quaily://ad/{ad_uuid}
+			// ad: quaily://ads/{ad_uuid}
 			reList := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)$`)
 			rePost := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$`)
 			reAd := regexp.MustCompile(`^/([a-zA-Z0-9_-]{36})$`)
@@ -141,7 +141,7 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				oid = destURL
 				theme = u.Query().Get("theme")
 				params["layout"] = u.Query().Get("layout")
-			} else if u.Host == "ad" {
+			} else if u.Host == "ads" {
 				provider = core.EnclaveProviderQuailAd
 				// get the ad id from the url
 				matches := reAd.FindStringSubmatch(u.Path)
@@ -176,9 +176,11 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 
 		} else {
 			// check the resize params
-			// form 1: ![](https://example.com/image.jpg?w=200&h=100)
+			// form 1: ![](https://example.com/image.jpg?w=200&h=100&center=1)
 			// form 2: ![](https://example.com/image.jpg|200x100) or ![](https://example.com/image.jpg|200)
 			// form 3: ![alt|200x100](https://example.com/image.jpg) or ![alt|200](https://example.com/image.jpg)
+			// if the width and height are numbers only, we assume it's unit is px. If not, we need to parse the unit from the string to check it.
+			// supported units: %, px, rem
 			w := u.Query().Get("w")
 			if w == "" {
 				w = u.Query().Get("width")
@@ -187,9 +189,10 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			if h == "" {
 				h = u.Query().Get("height")
 			}
+			align := u.Query().Get("align")
 
 			destination := string(img.Destination)
-			reForm := regexp.MustCompile(`\|(\d+)(?:x(\d+))?`)
+			reForm := regexp.MustCompile(`\|(\d+%?|rem?|px?)(?:x(\d+%?|rem?|px?))?`)
 			// check the form 2, the tail of img.Destination is like |200x100 or |200
 			if strings.Contains(destination, "|") {
 				matches := reForm.FindStringSubmatch(destination)
@@ -212,7 +215,7 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				}
 			}
 
-			if len(title) != 0 || w != "" || h != "" {
+			if len(title) != 0 || w != "" || h != "" || align != "" {
 				// this is a normal image, but it has a title, so we add a caption
 				provider = core.EnclaveProviderQuailImage
 				oid = destination
@@ -227,6 +230,9 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				}
 				if h != "" {
 					params["height"] = h
+				}
+				if align != "" {
+					params["align"] = align
 				}
 			} else {
 				provider = core.EnclaveRegularImage

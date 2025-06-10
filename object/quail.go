@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -24,8 +25,8 @@ const quailWidgetTpl = `
 `
 
 const quailImageTpl = `
-<figure class="quail-image-wrapper" style="width: {{.Width}}; height: {{.Height}}; margin: 1rem 0; display: block">
-	<img src="{{.URL}}" alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}}" class="quail-image" />
+<figure class="quail-image-wrapper" style="width: {{.Width}}; height: {{.Height}}; margin: {{.Margin}}; display: block">
+	<img src="{{.URL}}" alt="{{.Alt}}" style="width: 100%; height: auto" class="quail-image" />
 	<figcaption class="quail-image-caption" style="display: block">{{.Title}}</figcaption>
 </figure>
 `
@@ -86,6 +87,31 @@ func GetQuailWidgetHtml(enc *core.Enclave) (string, error) {
 	return ret, nil
 }
 
+var (
+	supportedUnits = []string{"%", "px", "rem"}
+	numRe          = regexp.MustCompile(`\d+`)
+)
+
+func formalizeImageSize(size string) string {
+	num := numRe.FindString(size)
+	if num == "" {
+		return "auto"
+	}
+	if n, err := strconv.Atoi(num); err == nil {
+		if n == 0 {
+			return "auto"
+		}
+	}
+
+	for _, unit := range supportedUnits {
+		if strings.HasSuffix(size, unit) {
+			return size
+		}
+	}
+
+	return fmt.Sprintf("%spx", num)
+}
+
 func GetQuailImageHtml(enc *core.Enclave) (string, error) {
 	buf := bytes.Buffer{}
 
@@ -96,24 +122,30 @@ func GetQuailImageHtml(enc *core.Enclave) (string, error) {
 
 	w := "auto"
 	if width, ok := enc.Params["width"]; ok {
-		w = width
+		w = formalizeImageSize(width)
 	}
 
 	h := "auto"
 	if height, ok := enc.Params["height"]; ok {
-		h = height
-	}
-
-	// if w and h are number, add px to the end
-	if wNum, err := strconv.Atoi(w); err == nil {
-		w = fmt.Sprintf("%dpx", wNum)
-	}
-	if hNum, err := strconv.Atoi(h); err == nil {
-		h = fmt.Sprintf("%dpx", hNum)
+		h = formalizeImageSize(height)
 	}
 
 	title := enc.Title
 	alt := enc.Alt
+
+	align := "center"
+	if a, ok := enc.Params["align"]; ok {
+		if a == "left" || a == "right" {
+			align = a
+		}
+	}
+
+	margin := "0 auto"
+	if align == "left" {
+		margin = "0 auto 0 0"
+	} else if align == "right" {
+		margin = "0 0 0 auto"
+	}
 
 	if err = t.Execute(&buf, map[string]string{
 		"URL":    enc.URL.String(),
@@ -121,6 +153,7 @@ func GetQuailImageHtml(enc *core.Enclave) (string, error) {
 		"Width":  w,
 		"Height": h,
 		"Alt":    alt,
+		"Margin": margin,
 	}); err != nil {
 		return "", err
 	}

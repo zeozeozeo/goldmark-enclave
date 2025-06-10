@@ -91,7 +91,47 @@ Some objects support options:
   - e.g. `![](https://twitter.com/NASA/status/1704954156149084293?theme=dark)`
 - `width` / `w` and `height` / `h`: The width and height of images. Default: `auto`
   - e.g. `![](https://your-image.com/image.png?w=100px)`
-- Obsidian-style image syntax: `![alt text](https://example.com/image.png|200 "title")` or `![alt text|200x300](https://example.com/image.png "title")` 
+  - Please refer to [image size and alignment](#image-size-and-alignment)
+
+### Image Size and Alignment
+
+**Obsidian-style image syntax**
+
+It supports two forms of Obsidian-style image syntax:
+
+```
+![alt text](https://example.com/image.png|200 "title")
+``` 
+
+or 
+
+```
+![alt text|200x300](https://example.com/image.png "title")
+```
+
+**Units**
+
+To specify the unit of the width and height, you can use the following units:
+
+- `px`: pixels
+- `rem`: rem
+- `%`: percentage
+
+```md
+![alt text|200px](https://example.com/image.png "title")
+```
+
+```md
+![alt text|50%](https://example.com/image.png "title")
+```
+
+**Alignment**
+
+The `align` parameter is used to specify the alignment of the image. Supported values are `left`, `right` and `center`. The default value is `center`.
+
+```md
+![alt text|50%](https://example.com/image.png?align=left "title")
+```
 
 ## Other features
 
