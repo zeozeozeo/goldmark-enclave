@@ -1,11 +1,11 @@
 package enclave
 
 import (
-	"github.com/quailyquaily/goldmark-enclave/core"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/util"
+	"github.com/zeozeozeo/goldmark-enclave/core"
 )
 
 type (

@@ -6,3 +6,5 @@ github.com/lyricat/goutils v1.0.8 h1:Turdnx3X9dYo1tKTh7WRQCkWJ2amIIqZxjG6VmRbjUQ
 github.com/lyricat/goutils v1.0.8/go.mod h1:u6JDg/cAhj67JjcP4FnDn9k6FOn+JMDGsFUYHBVv/PM=
 github.com/yuin/goldmark v1.7.8 h1:iERMLn0/QJeHFhxSt3p6PeN9mGnvIKSpG9YYorDMnic=
 github.com/yuin/goldmark v1.7.8/go.mod h1:uzxRWxtg69N339t3louHJ7+O03ezfj6PlliRlaOzY1E=
+github.com/yuin/goldmark v1.7.13 h1:GPddIs617DnBLFFVJFgpo1aBfe/4xcvMc3SB5t/D0pA=
+github.com/yuin/goldmark v1.7.13/go.mod h1:ip/1k0VRfGynBgxOz0yCqHrbZXhcjxyuS66Brc7iBKg=

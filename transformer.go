@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/quailyquaily/goldmark-enclave/core"
-	"github.com/quailyquaily/goldmark-enclave/helper"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
+	"github.com/zeozeozeo/goldmark-enclave/core"
+	"github.com/zeozeozeo/goldmark-enclave/helper"
 )
 
 type astTransformer struct {

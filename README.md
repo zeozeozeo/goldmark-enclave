@@ -30,7 +30,7 @@ This [goldmark](http://github.com/yuin/goldmark) extension extend commonmark syn
 
 ```go
 import (
-  enclave "github.com/quailyquaily/goldmark-enclave"
+  enclave "github.com/zeozeozeo/goldmark-enclave"
 	"github.com/yuin/goldmark"
 )
 // ...
@@ -101,9 +101,9 @@ It supports two forms of Obsidian-style image syntax:
 
 ```
 ![alt text](https://example.com/image.png|200 "title")
-``` 
+```
 
-or 
+or
 
 ```
 ![alt text|200x300](https://example.com/image.png "title")
@@ -139,7 +139,7 @@ The `align` parameter is used to specify the alignment of the image. Supported v
 
 ```go
 import (
-  enclaveMark "github.com/quailyquaily/goldmark-enclave/mark"
+  enclaveMark "github.com/zeozeozeo/goldmark-enclave/mark"
 	"github.com/yuin/goldmark"
 )
 // ...
@@ -164,7 +164,7 @@ will be rendered as:
 
 ```go
 import (
-  enclaveHref "github.com/quailyquaily/goldmark-enclave/href"
+  enclaveHref "github.com/zeozeozeo/goldmark-enclave/href"
 	"github.com/yuin/goldmark"
 )
 // ...
@@ -189,7 +189,7 @@ will be rendered as:
 
 ```go
 import (
-  enclaveFence "github.com/quailyquaily/goldmark-enclave/fence"
+  enclaveFence "github.com/zeozeozeo/goldmark-enclave/fence"
 	"github.com/yuin/goldmark"
 )
 // ...
@@ -204,7 +204,7 @@ markdown := goldmark.New(
 
 ```go
 import (
-  enclaveCallout "github.com/quailyquaily/goldmark-enclave/callout"
+  enclaveCallout "github.com/zeozeozeo/goldmark-enclave/callout"
 	"github.com/yuin/goldmark"
 )
 // ...
@@ -238,5 +238,5 @@ WARNING: This is a warning callout.
 ## Installation
 
 ```bash
-go get github.com/quailyquaily/goldmark-enclave
+go get github.com/zeozeozeo/goldmark-enclave
 ```

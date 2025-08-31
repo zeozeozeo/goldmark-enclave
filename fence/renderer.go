@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/quailyquaily/goldmark-enclave/helper"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/renderer"
 	"github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/util"
+	"github.com/zeozeozeo/goldmark-enclave/helper"
 )
 
 // A Config struct has configurations for the HTML based renderers.

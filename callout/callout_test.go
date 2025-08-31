@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/quailyquaily/goldmark-enclave/helper"
 	"github.com/yuin/goldmark"
+	"github.com/zeozeozeo/goldmark-enclave/helper"
 )
 
 func TestCallouts(t *testing.T) {

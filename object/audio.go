@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"github.com/quailyquaily/goldmark-enclave/core"
+	"github.com/zeozeozeo/goldmark-enclave/core"
 )
 
 const audioTpl = `<div class="enclave-audio-wrapper flex place-center">
