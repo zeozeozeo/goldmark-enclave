@@ -19,7 +19,7 @@ type astTransformer struct {
 }
 
 func (a *astTransformer) InsertFailedHint(n ast.Node, msg string) {
-	msgNode := ast.NewString([]byte(fmt.Sprintf("\n<!-- goldmark-enclave: %s -->\n", msg)))
+	msgNode := ast.NewString(fmt.Appendf(nil, "\n<!-- goldmark-enclave: %s -->\n", msg))
 	msgNode.SetCode(true)
 	n.Parent().InsertAfter(n.Parent(), n, msgNode)
 }

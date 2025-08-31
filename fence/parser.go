@@ -90,7 +90,7 @@ func (b *fencedContainerParser) Open(parent ast.Node, reader text.Reader, pc par
 	parts := strings.Split(containerTop, " ")
 	// remove empty parts
 	filterParts := make([]string, 0)
-	for i := 0; i < len(parts); i++ {
+	for i := range parts {
 		p := strings.TrimSpace(parts[i])
 		if p != "" {
 			filterParts = append(filterParts, p)
@@ -117,7 +117,7 @@ func (b *fencedContainerParser) Open(parent ast.Node, reader text.Reader, pc par
 		}
 	}
 
-	node.SetAttribute([]byte("class"), []byte(fmt.Sprintf("custom-block %s", containerType)))
+	node.SetAttribute([]byte("class"), fmt.Appendf(nil, "custom-block %s", containerType))
 	node.SetAttribute([]byte("data-title"), []byte(containerTitle))
 	node.SetAttribute([]byte("data-type"), []byte(containerType))
 	node.SetTitle(containerTitle)
@@ -206,7 +206,7 @@ func (b *fencedContainerParser) Continue(node ast.Node, reader text.Reader, pc p
 	if close && flevel == len(fdataMap)-1 {
 		reader.Advance(segment.Stop - segment.Start - newline + segment.Padding)
 		fdataMap = fdataMap[:flevel]
-		node.SetAttributeString("data-fence-level", []byte(fmt.Sprint(flevel)))
+		node.SetAttributeString("data-fence-level", fmt.Append(nil, flevel))
 
 		if len(fdataMap) == 0 {
 			return parser.Close
@@ -217,10 +217,7 @@ func (b *fencedContainerParser) Continue(node ast.Node, reader text.Reader, pc p
 	}
 
 	if fdata.contentIndent > 0 {
-		dontJumpLineEnd := segment.Stop - segment.Start - 1
-		if fdata.contentIndent < dontJumpLineEnd {
-			dontJumpLineEnd = fdata.contentIndent
-		}
+		dontJumpLineEnd := min(fdata.contentIndent, segment.Stop-segment.Start-1)
 
 		reader.Advance(dontJumpLineEnd)
 	}

@@ -51,7 +51,7 @@ func (b *calloutParser) Open(parent ast.Node, reader text.Reader, pc parser.Cont
 		title := mapCalloutTitle(calloutType, customTitle)
 
 		node.SetTitle(title)
-		node.SetAttribute([]byte("class"), []byte(fmt.Sprintf("custom-block %s", blockType)))
+		node.SetAttribute([]byte("class"), fmt.Appendf(nil, "custom-block %s", blockType))
 		node.SetAttribute([]byte("data-title"), []byte(title))
 		node.SetAttribute([]byte("data-type"), []byte(blockType))
 		node.SetAttribute([]byte("data-callout-type"), []byte("github-style"))
@@ -72,7 +72,7 @@ func (b *calloutParser) Open(parent ast.Node, reader text.Reader, pc parser.Cont
 		title := mapCalloutTitle(calloutType, "")
 
 		node.SetTitle(title)
-		node.SetAttribute([]byte("class"), []byte(fmt.Sprintf("custom-block %s", blockType)))
+		node.SetAttribute([]byte("class"), fmt.Appendf(nil, "custom-block %s", blockType))
 		node.SetAttribute([]byte("data-title"), []byte(title))
 		node.SetAttribute([]byte("data-type"), []byte(blockType))
 		node.SetAttribute([]byte("data-callout-type"), []byte("simple"))
