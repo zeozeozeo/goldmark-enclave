@@ -3,10 +3,10 @@ package enclave
 import (
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
@@ -22,6 +22,23 @@ func (a *astTransformer) InsertFailedHint(n ast.Node, msg string) {
 	msgNode := ast.NewString([]byte(fmt.Sprintf("\n<!-- goldmark-enclave: %s -->\n", msg)))
 	msgNode.SetCode(true)
 	n.Parent().InsertAfter(n.Parent(), n, msgNode)
+}
+
+var audioExtensions = map[string]struct{}{
+	".mp3":  {},
+	".wav":  {},
+	".ogg":  {},
+	".m4a":  {},
+	".flac": {},
+	".aac":  {},
+	".weba": {},
+	".opus": {},
+	".mid":  {},
+	".midi": {},
+	".aiff": {},
+	".aif":  {},
+	".wma":  {},
+	".ra":   {},
 }
 
 func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc parser.Context) {
@@ -115,7 +132,6 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 			// ad: quaily://ads/{ad_uuid}
 			reList := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)$`)
 			rePost := regexp.MustCompile(`^/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$`)
-			reAd := regexp.MustCompile(`^/([a-zA-Z0-9_-]{36})$`)
 
 			if u.Host == "list" || u.Host == "post" {
 				provider = core.EnclaveProviderQuailWidget
@@ -141,21 +157,7 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				oid = destURL
 				theme = u.Query().Get("theme")
 				params["layout"] = u.Query().Get("layout")
-			} else if u.Host == "ads" {
-				provider = core.EnclaveProviderQuailAd
-				// get the ad id from the url
-				matches := reAd.FindStringSubmatch(u.Path)
-				if len(matches) > 1 {
-					adUUID := matches[1]
-					// the ad id must be an UUID
-					if _, err := uuid.Parse(adUUID); err == nil {
-						oid = adUUID
-					} else {
-						return ast.WalkContinue, nil
-					}
-				}
 			}
-
 		} else if u.Host == "open.spotify.com" {
 			// https://open.spotify.com/track/5vdp5UmvTsnMEMESIF2Ym7?si=d4ee09bfd0e941c5
 			const re = `^track/([a-zA-Z0-9_-]+)$`
@@ -169,11 +171,10 @@ func (a *astTransformer) Transform(node *ast.Document, reader text.Reader, pc pa
 				}
 			}
 
-		} else if strings.HasSuffix(strings.ToLower(u.Path), ".mp3") {
-			// this is a mp3 file
+		} else if _, ok := audioExtensions[strings.ToLower(filepath.Ext(u.Path))]; ok {
+			// this is an audio file
 			provider = core.EnclaveHtml5Audio
 			oid = string(img.Destination)
-
 		} else {
 			// check the resize params
 			// form 1: ![](https://example.com/image.jpg?w=200&h=100&center=1)

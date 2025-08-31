@@ -103,13 +103,6 @@ func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.N
 		}
 		w.Write([]byte(html))
 
-	case core.EnclaveProviderQuailAd:
-		html, err := object.GetQuailAdHtml(enc)
-		if err != nil || html == "" {
-			html = r.wrapEnclaveErrorHtml("quail-ad", enc.ObjectID)
-		}
-		w.Write([]byte(html))
-
 	case core.EnclaveProviderSpotify:
 		html, err := object.GetSpotifyWidgetHtml(enc)
 		if err != nil || html == "" {
@@ -135,7 +128,7 @@ func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.N
 		enc.Title = string(enc.Image.Title)
 		html, err := object.GetQuailImageHtml(enc)
 		if err != nil || html == "" {
-			html = r.wrapEnclaveErrorHtml("quail-image", enc.ObjectID)
+			html = r.wrapEnclaveErrorHtml("image", enc.ObjectID)
 		}
 		w.Write([]byte(html))
 

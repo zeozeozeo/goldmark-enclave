@@ -25,15 +25,9 @@ const quailWidgetTpl = `
 `
 
 const quailImageTpl = `
-<span class="quail-image-wrapper" style="margin: {{.Margin}}; display: block;">
-	<img src="{{.URL}}" alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}};" class="quail-image">
+<span class="image-wrapper" style="margin: {{.Margin}}; display: block;">
+	<img src="{{.URL}}" alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}};" class="image">
 </span>
-`
-
-const quailAdTpl = `
-<div class="quail-ad-wrapper" style="width: 100%; height: auto; margin: 1rem 0; display: block">
-	<div class="quail-ad" data-ad-uuid="{{.ObjectID}}" style="width: 100%; height: auto"></div>
-</div>
 `
 
 func GetQuailWidgetHtml(enc *core.Enclave) (string, error) {
@@ -114,7 +108,7 @@ func formalizeImageSize(size string) string {
 func GetQuailImageHtml(enc *core.Enclave) (string, error) {
 	buf := bytes.Buffer{}
 
-	t, err := template.New("quail-image").Parse(quailImageTpl)
+	t, err := template.New("image").Parse(quailImageTpl)
 	if err != nil {
 		return "", err
 	}
@@ -153,23 +147,6 @@ func GetQuailImageHtml(enc *core.Enclave) (string, error) {
 		"Height": h,
 		"Alt":    alt,
 		"Margin": margin,
-	}); err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-func GetQuailAdHtml(enc *core.Enclave) (string, error) {
-	buf := bytes.Buffer{}
-
-	t, err := template.New("quail-ad").Parse(quailAdTpl)
-	if err != nil {
-		return "", err
-	}
-
-	if err = t.Execute(&buf, map[string]string{
-		"ObjectID": enc.ObjectID,
 	}); err != nil {
 		return "", err
 	}

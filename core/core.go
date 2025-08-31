@@ -14,7 +14,6 @@ const (
 	EnclaveProviderDifyWidget  = "dify-widget"
 	EnclaveProviderQuailWidget = "quail-widget"
 	EnclaveProviderQuailImage  = "quail-image"
-	EnclaveProviderQuailAd     = "quail-ad"
 	EnclaveProviderSpotify     = "spotify"
 	EnclaveRegularImage        = "regular-image"
 	EnclaveHtml5Audio          = "html5-audio"
