@@ -25,8 +25,8 @@ const quailWidgetTpl = `
 `
 
 const quailImageTpl = `
-<span class="quail-image-wrapper" style="width: {{.Width}}; height: {{.Height}}; margin: {{.Margin}}; display: block">
-	<img src="{{.URL}}" alt="{{.Alt}}" style="width: 100%; height: auto;" class="quail-image">
+<span class="quail-image-wrapper" style="margin: {{.Margin}}; display: block;">
+	<img src="{{.URL}}" alt="{{.Alt}}" style="width: {{.Width}}; height: {{.Height}};" class="quail-image">
 </span>
 `
 
