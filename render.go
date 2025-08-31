@@ -32,13 +32,7 @@ func (r *HTMLRenderer) RegisterFuncs(reg renderer.NodeRendererFuncRegisterer) {
 
 func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.Node, entering bool) (ast.WalkStatus, error) {
 	if entering {
-		// check the node and print the inner html and children
-		for child := node.FirstChild(); child != nil; child = child.NextSibling() {
-			if child.Kind() == ast.KindText {
-				node.RemoveChildren(node)
-			}
-		}
-		return ast.WalkContinue, nil
+		return ast.WalkSkipChildren, nil
 	}
 
 	enc := node.(*core.Enclave)
