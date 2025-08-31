@@ -131,13 +131,8 @@ func (r *HTMLRenderer) renderEnclave(w util.BufWriter, source []byte, node ast.N
 		w.Write([]byte(html))
 
 	case core.EnclaveProviderQuailImage:
-		var alt string
-		if enc.Alt == "" && len(enc.Title) != 0 {
-			alt = fmt.Sprintf("An image to describe %s", enc.Title)
-		}
-		if alt == "" {
-			alt = "An image to describe post"
-		}
+		enc.Alt = string(node.Text(source))
+		enc.Title = string(enc.Image.Title)
 		html, err := object.GetQuailImageHtml(enc)
 		if err != nil || html == "" {
 			html = r.wrapEnclaveErrorHtml("quail-image", enc.ObjectID)
